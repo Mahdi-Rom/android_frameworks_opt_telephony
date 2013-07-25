@@ -20,6 +20,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.net.LocalServerSocket;
 import android.os.Looper;
+import android.os.SystemProperties;
 import android.provider.Settings;
 import android.telephony.Rlog;
 import android.telephony.TelephonyManager;
