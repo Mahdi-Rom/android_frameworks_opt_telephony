@@ -923,7 +923,7 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
 
         if (hasRilDataRadioTechnologyChanged) {
             mPhone.setSystemProperty(TelephonyProperties.PROPERTY_DATA_NETWORK_TYPE,
-                    ServiceState.rilRadioTechnologyToString(mSS.getRilVoiceRadioTechnology()));
+                    ServiceState.rilRadioTechnologyToString(mSS.getRilDataRadioTechnology()));
         }
 
         if (hasRegistered) {
@@ -1406,7 +1406,7 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
      */
     @Override
     public boolean isConcurrentVoiceAndDataAllowed() {
-        return (mSS.getRilVoiceRadioTechnology() >= ServiceState.RIL_RADIO_TECHNOLOGY_UMTS);
+        return (mSS.getRilDataRadioTechnology() >= ServiceState.RIL_RADIO_TECHNOLOGY_UMTS);
     }
 
     /**
@@ -1545,7 +1545,16 @@ final class GsmServiceStateTracker extends ServiceStateTracker {
             if (nitzSubs.length >= 9) {
                 String  tzname = nitzSubs[8].replace('!','/');
                 zone = TimeZone.getTimeZone( tzname );
+                // From luni's getTimeZone() "We never return null; on failure we return the
+                // equivalent of "GMT"." This is bad, since it'll force all invalid strings
+                // to "GMT"... and all the null-zone checks below will fail, making tzOffset
+                // irrelevant and GMT the active TZ. So tzOffset will take precedence if this
+                // results in "GMT"
+                if (TimeZone.getTimeZone("GMT").equals(zone) && tzOffset != 0) {
+                    zone = null;
+                }
             }
+
 
             String iso = SystemProperties.get(TelephonyProperties.PROPERTY_OPERATOR_ISO_COUNTRY);
 
